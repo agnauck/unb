@@ -27,6 +27,7 @@ if ($_REQUEST['use_result'])
 	$_REQUEST['DateFrom'] = $_SESSION['search_DateFrom'];
 	$_REQUEST['DateUntil'] = $_SESSION['search_DateUntil'];
 	$_REQUEST['Special'] = $_SESSION['search_Special'];
+	$_REQUEST['LastXDays'] = $_SESSION['search_LastXDays'];
 }
 
 // -------------------- Import request variables --------------------
@@ -46,7 +47,6 @@ $error = false;
 $TP =& $UNB['TP'];
 
 // -------------------- Prepare special search links output --------------------
-
 $more_search_links = '<table cellspacing="0" cellpadding="0" width="100%"><tr style="vertical-align: top;">
 	<td width="50%">
 		<a href="' . UnbLink('@search', 'nodef=1&Special=new&ResultView=1', true) . '">' . $UNB_T['search.current topics since last login'] . '</a><br />
@@ -56,7 +56,14 @@ $more_search_links = '<table cellspacing="0" cellpadding="0" width="100%"><tr st
 		<a href="' . UnbLink('@search', 'nodef=1&Special=opentopics&ResultView=1', true) . '">' . $UNB_T['search.open topics'] . '</a><br />
 		<a href="' . UnbLink('@search', 'nodef=1&Special=currentpolls&ResultView=1', true) . '">' . $UNB_T['search.current polls'] . '</a> -
 		<a href="' . UnbLink('@search', 'nodef=1&Special=newvotes&ResultView=1', true) . '">' . $UNB_T['search.new votes'] . '</a><br />
-		' . $UNB_T['search.current topics of last-'] . '<a href="' . UnbLink('@search', 'nodef=1&DateFrom=' . (time() - 1 * 86400) . '&ResultView=1&Sort=2&title=1', true) . '">&nbsp;1&nbsp;</a><a href="' . UnbLink('@search', 'nodef=1&DateFrom=' . (time() - 3 * 86400) . '&ResultView=1&Sort=2&title=3', true) . '">&nbsp;3&nbsp;</a><a href="' . UnbLink('@search', 'nodef=1&DateFrom=' . (time() - 7 * 86400) . '&ResultView=1&Sort=2&title=7', true) . '">&nbsp;7&nbsp;</a>' . $UNB_T['search.-days'] . '
+		' . $UNB_T['search.current topics of last-'] 
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=1&ResultView=1&Sort=2&title=1', true) . '">&nbsp;1&nbsp;</a>'
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=3&ResultView=1&Sort=2&title=3', true) . '">&nbsp;3&nbsp;</a>'
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=7&ResultView=1&Sort=2&title=7', true) . '">&nbsp;7&nbsp;</a>'
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=14&ResultView=1&Sort=2&title=14', true) . '">&nbsp;14&nbsp;</a>'
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=30&ResultView=1&Sort=2&title=30', true) . '">&nbsp;30&nbsp;</a>'
+		. '<a href="' . UnbLink('@search', 'nodef=1&LastXDays=90&ResultView=1&Sort=2&title=90', true) . '">&nbsp;90&nbsp;</a>'
+		. $UNB_T['search.-days'] . '
 	</td>
 	<td width="50%">
 		<a href="' . UnbLink('@search', 'nodef=1&Special=mytopics&ResultView=1', true) . '">' . $UNB_T['search.my topics'] . '</a><br />
@@ -99,7 +106,7 @@ if ($_GET['nodef'] != 1 && $_GET['where'] == '')
 	}
 }
 
-if ($_REQUEST['Query'] != '' || $_REQUEST['DateFrom'] != '' || $_REQUEST['DateUntil'] != '' || $_REQUEST['where'] != '' || $_REQUEST['Special'] != '')
+if ($_REQUEST['Query'] != '' || $_REQUEST['DateFrom'] != '' || $_REQUEST['DateUntil'] != '' || $_REQUEST['where'] != '' || $_REQUEST['Special'] != '' || $_REQUEST['LastXDays'] != '')
 {
 	// ----- There seems to be some work to do -----
 
@@ -447,6 +454,17 @@ if ($_REQUEST['Query'] != '' || $_REQUEST['DateFrom'] != '' || $_REQUEST['DateUn
 				$query .= mktime(0, 0, 0, $a[1], $a[0], $a[2]);
 
 			$query .= ')';
+		}
+
+		if ($_REQUEST['LastXDays'] != '')
+		{
+			if ($query != '') $query .= ' AND ';
+
+			$query .= '(p.Date >= ';
+      		$query .= time() - intval($_REQUEST['LastXDays']) * 86400;
+			$query .= ')';
+
+			if (intval($_REQUEST['title']) > 0) $title = $UNB_T['search.current topics of last-'] . $_REQUEST['title'] . $UNB_T['search.-days'];
 		}
 
 		if ($topforum > 0)
