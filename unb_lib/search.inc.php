@@ -47,7 +47,6 @@ $error = false;
 $TP =& $UNB['TP'];
 
 // -------------------- Prepare special search links output --------------------
-$today_midnight =  (new DateTime())->setTime(0,0)->getTimestamp();
 $more_search_links = '<table cellspacing="0" cellpadding="0" width="100%"><tr style="vertical-align: top;">
 	<td width="50%">
 		<a href="' . UnbLink('@search', 'nodef=1&Special=new&ResultView=1', true) . '">' . $UNB_T['search.current topics since last login'] . '</a><br />
